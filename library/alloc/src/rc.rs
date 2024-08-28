@@ -256,6 +256,7 @@ use core::ops::{CoerceUnsized, Deref, DerefMut, DerefPure, DispatchFromDyn, Rece
 use core::panic::{RefUnwindSafe, UnwindSafe};
 #[cfg(not(no_global_oom_handling))]
 use core::pin::Pin;
+use core::pin::PinCoerceUnsized;
 use core::ptr::{self, drop_in_place, NonNull};
 #[cfg(not(no_global_oom_handling))]
 use core::slice::from_raw_parts_mut;
@@ -538,6 +539,7 @@ impl<T> Rc<T> {
     /// # Examples
     ///
     /// ```
+    /// #![feature(new_zeroed_alloc)]
     /// #![feature(new_uninit)]
     ///
     /// use std::rc::Rc;
@@ -550,7 +552,7 @@ impl<T> Rc<T> {
     ///
     /// [zeroed]: mem::MaybeUninit::zeroed
     #[cfg(not(no_global_oom_handling))]
-    #[unstable(feature = "new_uninit", issue = "63291")]
+    #[unstable(feature = "new_zeroed_alloc", issue = "129396")]
     #[must_use]
     pub fn new_zeroed() -> Rc<mem::MaybeUninit<T>> {
         unsafe {
@@ -999,6 +1001,7 @@ impl<T> Rc<[T]> {
     ///
     /// ```
     /// #![feature(new_uninit)]
+    /// #![feature(new_zeroed_alloc)]
     ///
     /// use std::rc::Rc;
     ///
@@ -1010,7 +1013,7 @@ impl<T> Rc<[T]> {
     ///
     /// [zeroed]: mem::MaybeUninit::zeroed
     #[cfg(not(no_global_oom_handling))]
-    #[unstable(feature = "new_uninit", issue = "63291")]
+    #[unstable(feature = "new_zeroed_alloc", issue = "129396")]
     #[must_use]
     pub fn new_zeroed_slice(len: usize) -> Rc<[mem::MaybeUninit<T>]> {
         unsafe {
@@ -2176,6 +2179,12 @@ impl<T: ?Sized, A: Allocator> Deref for Rc<T, A> {
         &self.inner().value
     }
 }
+
+#[unstable(feature = "pin_coerce_unsized_trait", issue = "123430")]
+unsafe impl<T: ?Sized, A: Allocator> PinCoerceUnsized for Rc<T, A> {}
+
+#[unstable(feature = "pin_coerce_unsized_trait", issue = "123430")]
+unsafe impl<T: ?Sized, A: Allocator> PinCoerceUnsized for Weak<T, A> {}
 
 #[unstable(feature = "deref_pure_trait", issue = "87121")]
 unsafe impl<T: ?Sized, A: Allocator> DerefPure for Rc<T, A> {}
@@ -3690,6 +3699,9 @@ impl<T: ?Sized, A: Allocator> Deref for UniqueRc<T, A> {
         unsafe { &self.ptr.as_ref().value }
     }
 }
+
+#[unstable(feature = "pin_coerce_unsized_trait", issue = "123430")]
+unsafe impl<T: ?Sized> PinCoerceUnsized for UniqueRc<T> {}
 
 #[unstable(feature = "unique_rc_arc", issue = "112566")]
 impl<T: ?Sized, A: Allocator> DerefMut for UniqueRc<T, A> {
