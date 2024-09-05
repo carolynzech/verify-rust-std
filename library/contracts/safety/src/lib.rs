@@ -14,6 +14,12 @@ mod tool;
 
 #[proc_macro_error]
 #[proc_macro_attribute]
+pub fn invariant(attr: TokenStream, item: TokenStream) -> TokenStream {
+    tool::invariant(attr, item)
+}
+
+#[proc_macro_error]
+#[proc_macro_attribute]
 pub fn requires(attr: TokenStream, item: TokenStream) -> TokenStream {
     tool::requires(attr, item)
 }

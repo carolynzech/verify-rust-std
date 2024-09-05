@@ -8,6 +8,7 @@ use safety::requires;
 use crate::error::Error;
 use crate::ptr::{Alignment, NonNull};
 use crate::{cmp, fmt, mem};
+use safety::invariant;
 
 #[cfg(kani)]
 use crate::kani;
@@ -39,6 +40,7 @@ const fn size_align<T>() -> (usize, usize) {
 #[stable(feature = "alloc_layout", since = "1.28.0")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 #[lang = "alloc_layout"]
+#[invariant(align.as_usize().is_power_of_two())]
 pub struct Layout {
     // size of the requested block of memory, measured in bytes.
     size: usize,

@@ -1,0 +1,52 @@
+Kani Rust Verifier 0.54.0 (standalone)
+
+Debug information: what Kani returns for expanding Invariant and Arbitrary macros
+---------
+impl kani :: Arbitrary for Layout
+{
+    fn any() -> Self
+    {
+        let obj = Layout { size : kani :: any(), align : kani :: any(), }; let
+        size = & obj.size; let align = & obj.align; kani ::
+        assume(align.as_usize().is_power_of_two()); obj
+    }
+}
+impl kani :: Invariant for Layout
+{
+    fn is_safe(& self) -> bool
+    {
+        let obj = self; let size = & obj.size; let align = & obj.align;
+        size.is_safe() && align.is_safe() &&
+        align.as_usize().is_power_of_two()
+    }
+}
+impl < T : kani :: Arbitrary + kani :: Arbitrary > kani :: Arbitrary for
+CannotDrop < T >
+{ fn any() -> Self { CannotDrop { inner : kani :: any(), } } }
+------------------
+
+error[E0404]: expected trait, found derive macro `kani::Invariant`
+   --> /Users/cmzech/verify-std/library/core/src/alloc/layout.rs:43:1
+    |
+43  | #[invariant(align.as_usize().is_power_of_two())]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | |
+    | not a trait
+    | in this derive macro expansion
+    |
+   ::: /Users/cmzech/kani/library/kani_macros/src/lib.rs:300:1
+    |
+300 | #[proc_macro_error]
+    | ------------------- in this expansion of `#[derive(kani_core::Invariant)]`
+
+error: implementation has missing stability attribute
+   --> /Users/cmzech/verify-std/library/core/src/alloc/layout.rs:43:1
+    |
+43  | #[invariant(align.as_usize().is_power_of_two())]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ in this derive macro expansion
+    |
+   ::: /Users/cmzech/kani/library/kani_macros/src/lib.rs:203:1
+    |
+203 | #[proc_macro_error]
+    | ------------------- in this expansion of `#[derive(kani_core::Arbitrary)]`
+
