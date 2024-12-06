@@ -67,20 +67,28 @@ jobs:
         run: scripts/run-kani.sh --kani-args --harness ptr::verify::check_read_u128 --harness ptr --output-format=terse
    
   run-kani-list:
-    name: Test Kani script
+    name: Kani List
     runs-on: ubuntu-latest
     steps:
-      # Run list on the std library and add output to job summary
-    - name: Run Kani List
-      run: head/scripts/run-kani.sh --run list --path ${{github.workspace}}/head
+      # Step 1: Check out the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          path: head
+          submodules: true
 
-    - name: Add Kani List output to job summary
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const fs = require('fs');
-          const kaniOutput = fs.readFileSync('${{github.workspace}}/head/kani-list.md', 'utf8');
-          await core.summary
-            .addHeading('Kani List Output', 2)
-            .addRaw(kaniOutput, false)
-            .write();
+      # Step 2: Run list on the std library
+      - name: Test Kani script (In Repo Directory)
+        run: head/scripts/run-kani.sh --run list --path ${{github.workspace}}/head
+      
+      # Step 3: Add output to job summary
+      - name: Add Kani List output to job summary
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const kaniOutput = fs.readFileSync('${{github.workspace}}/head/kani-list.md', 'utf8');
+            await core.summary
+              .addHeading('Kani List Output', 2)
+              .addRaw(kaniOutput, false)
+              .write();
