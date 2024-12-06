@@ -75,7 +75,8 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const kaniOutput = fs.readFileSync('${{github.workspace}}/head/kani_list.txt', 'utf8');
+            const kaniOutput = fs.readFileSync('${{github.workspace}}/head/kani-list.md', 'utf8');
             await core.summary
-              .addRaw(kaniOutput)
+              .addHeading('Kani List Output', 2)
+              .addRaw(kaniOutput, false)
               .write();
