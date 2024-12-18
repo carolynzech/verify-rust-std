@@ -80,10 +80,10 @@ BRANCH_NAME=${KANI_BRANCH_NAME:-$DEFAULT_BRANCH_NAME}
 # Variables used for parallel harness verification
 # When we say "parallel," we mean two dimensions of parallelization:
 #   1. Sharding verification across multiple workers. The Kani workflow that calls this script defines WORKER_INDEX and WORKER_TOTAL for this purpose: 
-#   we shard verification across WORKER_TOTAL workers, where each worker has a unique WORKER_INDEX that it uses to derive its share of harnesses to verify.
+#   we shard verification across WORKER_TOTAL workers, where each worker has a unique WORKER_INDEX that it uses to derive its share of ALL_HARNESSES to verify.
 #   2. Within a single worker, we parallelize verification between multiple cores by invoking kani with -j VERIFICATION_THREAD_COUNT.
-#   For now, VERIFICATION_THREAD_COUNT=3 since the Kani workflow runs on standard Github runners, which have between 3-4 cores.
-#   If we move to larger runners, we should increase this number.
+#   For now, VERIFICATION_THREAD_COUNT=4 since the Kani workflow runs on standard Github runners, which have 3-4 cores.
+#   TODO: If we move to larger runners, we should increase this number.
 
 # Array of all of the harnesses in the repository, set in get_harnesses()
 declare -a ALL_HARNESSES
@@ -173,7 +173,7 @@ get_kani_path() {
 get_harnesses() {
     local kani_path="$1"
     "$kani_path" list -Z list -Z function-contracts -Z mem-predicates -Z float-lib -Z c-ffi ./library --std --format json
-    local json_file_version = $(jq -r '.["file-version"]' $WORK_DIR/kani-list.json)
+    local json_file_version=$(jq -r '.["file-version"]' "$WORK_DIR/kani-list.json")
     if [[ $json_file_version != "0.1" ]]; then
         echo "Error: The JSON file-version in kani-list.json does not equal 0.1."
         exit 1
