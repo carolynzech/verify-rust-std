@@ -77,9 +77,20 @@ TOML_FILE=${KANI_TOML_FILE:-$DEFAULT_TOML_FILE}
 REPO_URL=${KANI_REPO_URL:-$DEFAULT_REPO_URL}
 BRANCH_NAME=${KANI_BRANCH_NAME:-$DEFAULT_BRANCH_NAME}
 
-# Kani list related variables, set in get_harnesses(); these are only used to parallelize harness verification
+# Variables used for parallel harness verification
+# When we say "parallel," we mean two dimensions of parallelization:
+#   1. Sharding verification across multiple workers. The Kani workflow that calls this script defines WORKER_INDEX and WORKER_TOTAL for this purpose: 
+#   we shard verification across WORKER_TOTAL workers, where each worker has a unique WORKER_INDEX that it uses to derive its share of harnesses to verify.
+#   2. Within a single worker, we parallelize verification between multiple cores by invoking kani with -j VERIFICATION_THREAD_COUNT.
+#   For now, VERIFICATION_THREAD_COUNT=3 since the Kani workflow runs on standard Github runners, which have between 3-4 cores.
+#   If we move to larger runners, we should increase this number.
+
+# Array of all of the harnesses in the repository, set in get_harnesses()
 declare -a ALL_HARNESSES
+# Length of ALL_HARNESSES, set in get_harnesses()
 declare -i HARNESS_COUNT
+# Number of threads to spawn within a single worker to run Kani.
+declare -i VERIFICATION_THREAD_COUNT=4
 
 # Function to read commit ID from TOML file
 read_commit_from_toml() {
@@ -195,6 +206,7 @@ run_verification_subset() {
         -Z float-lib \
         -Z c-ffi \
         $harness_args --exact \
+        -j $VERIFICATION_THREAD_COUNT \
         $command_args \
         --enable-unstable \
         --cbmc-args --object-bits 12
@@ -251,8 +263,8 @@ main() {
     "$kani_path" --version
 
     if [[ "$run_command" == "verify-std" ]]; then
-        if [[ -n "$PARALLEL_INDEX" && -n "$PARALLEL_TOTAL" ]]; then
-            echo "Running as parallel worker $PARALLEL_INDEX of $PARALLEL_TOTAL"
+        if [[ -n "$WORKER_INDEX" && -n "$WORKER_TOTAL" ]]; then
+            echo "Running as parallel worker $WORKER_INDEX of $WORKER_TOTAL"
             get_harnesses "$kani_path"
 
             echo "All harnesses:"
@@ -260,10 +272,10 @@ main() {
             echo "Total number of harnesses: $HARNESS_COUNT"
             
             # Calculate this worker's portion
-            chunk_size=$(( (HARNESS_COUNT + PARALLEL_TOTAL - 1) / PARALLEL_TOTAL ))
+            chunk_size=$(( (HARNESS_COUNT + WORKER_TOTAL - 1) / WORKER_TOTAL ))
             echo "Number of harnesses this worker will run: $chunk_size"
             
-            start_idx=$(( (PARALLEL_INDEX - 1) * chunk_size ))
+            start_idx=$(( (WORKER_INDEX - 1) * chunk_size ))
             end_idx=$(( start_idx + chunk_size ))
             # If end_idx > HARNESS_COUNT, truncate it to $HARNESS_COUNT
             if [[ $end_idx > $HARNESS_COUNT ]]; then
