@@ -8,6 +8,7 @@ usage() {
     echo "  -h, --help         Show this help message"
     echo "  -p, --path <path>  Optional: Specify a path to a copy of the std library. For example, if you want to run the script from an outside directory."
     echo "  --run <verify-std|list>  Optional: Specify whether to run 'verify-std' or 'list' command. Defaults to 'verify-std' if not specified."
+    echo "  --list-format <json|markdown|pretty>: Optional. If running the list command, the format of the list output. Defaults to markdown."
     echo "  --kani-args  <command arguments to kani>  Optional: Arguments to pass to the command. Simply pass them in the same way you would to the Kani binary. This should be the last argument."
     exit 1
 }
@@ -16,9 +17,9 @@ usage() {
 command_args=""
 path=""
 run_command="verify-std"
+list_format=""
 
 # Parse command line arguments
-# TODO: Improve parsing with getopts
 while [[ $# -gt 0 ]]; do
     case $1 in
         -h|--help)
@@ -42,6 +43,15 @@ while [[ $# -gt 0 ]]; do
                 usage
             fi
             ;;
+        --list-format)
+            if [[ -n $2 && ($2 == "json" || $2 == "markdown" || $2 == "pretty") ]]; then
+                list_format=$2
+                shift 2
+            else
+                echo "Error: Invalid list format. Must be 'json', 'markdown', or 'pretty'."
+                usage
+            fi
+            ;;
         --kani-args)
             shift
             command_args="$@"
@@ -53,6 +63,17 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+# Validate list-format is only used with list command
+if [[ -n $list_format && $run_command != "list" ]]; then
+    echo "Error: --list-format can only be used with --run list"
+    usage
+fi
+
+# If list command is used without format, default to markdown
+if [[ $run_command == "list" && -z $list_format ]]; then
+    list_format="markdown"
+fi
 
 # Set working directory
 if [[ -n "$path" ]]; then
@@ -295,7 +316,7 @@ main() {
         fi
     elif [[ "$run_command" == "list" ]]; then
         echo "Running Kani list command..."
-        "$kani_path" list -Z list $unstable_args ./library --std --format markdown
+        "$kani_path" list -Z list $unstable_args ./library --std --format $list_format
     fi
 }
 
