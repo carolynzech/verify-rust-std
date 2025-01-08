@@ -11,7 +11,7 @@ defaults:
 
 jobs:
   update-kani-metrics:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest, macos-latest
     
     steps:
     - name: Checkout Repository
