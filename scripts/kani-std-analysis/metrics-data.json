@@ -10,7 +10,7 @@
       "verified_safe_abstractions_under_contract": 40,
       "safe_fns_under_contract": 18,
       "verified_safe_fns_under_contract": 18,
-      "total_functions_under_contract": 167
+      "total_functions_under_contract": 168
     },
     {
       "date": "2025-01-01",
@@ -22,7 +22,7 @@
       "verified_safe_abstractions_under_contract": 41,
       "safe_fns_under_contract": 39,
       "verified_safe_fns_under_contract": 38,
-      "total_functions_under_contract": 223
+      "total_functions_under_contract": 224
     }
   ]
 }
