@@ -298,15 +298,15 @@ main() {
         "$kani_path" list -Z list $unstable_args ./library --std --format markdown
     elif [[ "$run_command" == "metrics" ]]; then
         echo "Computing Kani-specific metrics..."
-        echo "Running Kani list command..."
-        "$kani_path" list -Z list $unstable_args ./library --std --format json
-        mv $(pwd)/kani-list.json scripts/kani-std-analysis/kani-list.json
         echo "Running Kani's std-analysis command..."
         pushd $build_dir
         ./scripts/std-analysis.sh
         cat /tmp/std_lib_analysis/results/core_scan_overall.csv
         cat /tmp/std_lib_analysis/results/core_scan_functions.csv
         popd
+        echo "Running Kani list command..."
+        "$kani_path" list -Z list $unstable_args ./library --std --format json
+        mv $(pwd)/kani-list.json scripts/kani-std-analysis/kani-list.json
         pushd scripts/kani-std-analysis
         pip install -r requirements.txt
         ./kani_std_analysis.py
