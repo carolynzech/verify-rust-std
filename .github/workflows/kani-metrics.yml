@@ -11,14 +11,8 @@ defaults:
 
 jobs:
   update-kani-metrics:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest]
-        include:
-          - os: macos-latest
-            base: macos
-    
+    runs-on: macos-latest
+
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
