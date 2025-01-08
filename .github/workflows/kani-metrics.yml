@@ -11,7 +11,15 @@ defaults:
 
 jobs:
   update-kani-metrics:
-    runs-on: ubuntu-latest, macos-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            base: ubuntu
+          - os: macos-latest
+            base: macos
     
     steps:
     - name: Checkout Repository
