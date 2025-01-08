@@ -304,6 +304,8 @@ main() {
         echo "Running Kani's std-analysis command..."
         pushd $build_dir
         ./scripts/std-analysis.sh
+        cat /tmp/std_lib_analysis/results/core_scan_overall.csv
+        cat /tmp/std_lib_analysis/results/core_scan_functions.csv
         popd
         pushd scripts/kani-std-analysis
         pip install -r requirements.txt
