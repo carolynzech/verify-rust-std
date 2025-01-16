@@ -41,6 +41,7 @@ jobs:
           cargo install mdbook --version "^0.4" --locked
           echo "${HOME}/.cargo/bin" >> $GITHUB_PATH
 
+      # Removed --locked for now since it is broken due to old proc_macro feature.
       - name: Install linkchecker
         run: cargo install mdbook-linkcheck --version "^0.7"
 
@@ -50,7 +51,7 @@ jobs:
       - name: Upload book
         uses: actions/upload-pages-artifact@v3
         with:
-          path: doc/book
+          path: book/html
           retention-days: "2"
 
   deploy:
