@@ -9,7 +9,6 @@
 - [Verification Tools](./tools.md)
   - [Kani](./tools/kani.md)
 
-
 ---
 
 - [Challenges](./challenges.md)
