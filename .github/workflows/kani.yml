@@ -34,7 +34,7 @@ jobs:
       # Define the index of this particular worker [1-WORKER_TOTAL]
       WORKER_INDEX: ${{ matrix.partition }}
       # Total number of workers running this step
-      WORKER_TOTAL: 4
+      WORKER_TOTAL: 8
     
     steps:
       # Step 1: Check out the repository
