@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        partition: [1, 2, 3, 4]
+        partition: [1, 2, 3, 4, 5, 6, 7, 8]
         include:
           - os: ubuntu-latest
             base: ubuntu
@@ -34,7 +34,7 @@ jobs:
       # Define the index of this particular worker [1-WORKER_TOTAL]
       WORKER_INDEX: ${{ matrix.partition }}
       # Total number of workers running this step
-      WORKER_TOTAL: 4
+      WORKER_TOTAL: 8
     
     steps:
       # Step 1: Check out the repository

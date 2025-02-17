@@ -208,7 +208,7 @@ run_verification_subset() {
     "$kani_path" verify-std -Z unstable-options ./library \
         $unstable_args \
         $harness_args --exact \
-        -j \
+        # -j \
         --output-format=terse \
         $command_args \
         --enable-unstable \
